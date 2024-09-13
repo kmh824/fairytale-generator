@@ -1,32 +1,44 @@
 package com.fairytale.fairytale_generator.service;
 
-
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import com.fairytale.fairytale_generator.entity.User;
+import com.fairytale.fairytale_generator.repository.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    private final UserRepository userRepository;
+
+    public CustomOAuth2UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        // OAuth2UserRequest에서 OAuth2UserService를 통해 사용자 정보 가져오기
-        OAuth2User oAuth2User = new org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService().loadUser(userRequest);
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2User oauth2User = new DefaultOAuth2UserService().loadUser(userRequest);
 
-        // 사용자 정보 처리
-        Map<String, Object> attributes = oAuth2User.getAttributes();
+        Map<String, Object> attributes = oauth2User.getAttributes();
+        String googleId = (String) attributes.get("sub");  // 구글 ID
         String email = (String) attributes.get("email");
+        String name = (String) attributes.get("name");
 
-        // 권한 설정 (ROLE_USER)
-        GrantedAuthority authority = new OAuth2UserAuthority("ROLE_USER", attributes);
+        Optional<User> existingUser = userRepository.findByGoogleId(googleId);
+        if (existingUser.isEmpty()) {
+            User newUser = new User();
+            newUser.setGoogleId(googleId);
+            newUser.setEmail(email);
+            newUser.setName(name);
+            userRepository.save(newUser);
+        }
 
-        return new DefaultOAuth2User(Collections.singleton(authority), attributes, "email");
+        return oauth2User;
     }
 }
