@@ -1,4 +1,4 @@
-package com.fairytale.fairytale_generator.config;
+package com.fairytale.fairytale_generator.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -16,10 +16,11 @@ public class JWTUtils {
 
     public JWTUtils(@Value("${jwt.secret}") String jwtSecret,
                     @Value("${jwt.expirationMs}") int jwtExpirationMs) {
-        this.jwtExpirationMs = jwtExpirationMs;  // 만료 시간 설정
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());  // JWT Secret 키 생성
+        this.jwtExpirationMs = jwtExpirationMs;
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
+    // JWT 토큰 생성
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -29,6 +30,7 @@ public class JWTUtils {
                 .compact();
     }
 
+    // JWT 토큰에서 이메일 추출
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -38,6 +40,7 @@ public class JWTUtils {
                 .getSubject();
     }
 
+    // JWT 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
