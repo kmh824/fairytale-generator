@@ -16,8 +16,6 @@ public class JWTUtils {
 
     public JWTUtils(@Value("${jwt.secret}") String jwtSecret,
                     @Value("${jwt.expirationMs}") int jwtExpirationMs) {
-        System.out.println("JWT_SECRET: " + jwtSecret);  // 환경 변수 값 출력
-        System.out.println("JWT_EXPIRATION_MS: " + jwtExpirationMs);  // 환경 변수 값 출력
         this.jwtExpirationMs = jwtExpirationMs;  // 만료 시간 설정
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());  // JWT Secret 키 생성
     }
