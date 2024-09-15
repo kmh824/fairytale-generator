@@ -2,6 +2,7 @@ package com.fairytale.fairytale_generator.config;
 
 import com.fairytale.fairytale_generator.entity.User;
 import com.fairytale.fairytale_generator.repository.UserRepository;
+import com.fairytale.fairytale_generator.service.JWTUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -16,9 +17,11 @@ import java.time.LocalDateTime;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
+    private final JWTUtils jwtUtils;
 
-    public OAuth2SuccessHandler(UserRepository userRepository) {
+    public OAuth2SuccessHandler(UserRepository userRepository, JWTUtils jwtUtils) {
         this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -42,6 +45,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        // 이후 로직은 AuthController에서 처리하므로 더 이상 토큰을 생성해서 응답할 필요는 없습니다
+        // JWT 토큰 생성
+        String jwtToken = jwtUtils.generateToken(email);
+
+        // JWT 토큰을 URL 파라미터로 추가하여 프론트엔드로 리다이렉트
+        response.sendRedirect("http://localhost:3000?token=" + jwtToken);
     }
 }

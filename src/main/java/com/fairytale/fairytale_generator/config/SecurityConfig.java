@@ -22,6 +22,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()   // Swagger UI와 관련된 경로들을 인증 없이 허용
                         .requestMatchers("/api/auth/**", "/login", "/oauth2/**").permitAll()  // 로그인, OAuth 경로 허용
                         .anyRequest().authenticated()  // 나머지 요청은 인증 필요
                 )
