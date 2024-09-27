@@ -45,10 +45,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        // JWT 토큰 생성
-        String jwtToken = jwtUtils.generateToken(email);
+        // JWT 토큰 생성 - userId와 email을 함께 전달
+        String jwtToken = jwtUtils.generateToken(user.getId(), email);
 
         // JWT 토큰을 URL 파라미터로 추가하여 프론트엔드로 리다이렉트
         response.sendRedirect("http://localhost:3000?token=" + jwtToken);
     }
+
 }
