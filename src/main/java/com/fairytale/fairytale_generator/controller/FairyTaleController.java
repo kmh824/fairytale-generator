@@ -1,6 +1,7 @@
 package com.fairytale.fairytale_generator.controller;
 
-import com.fairytale.fairytale_generator.entity.FairyTale;
+import com.fairytale.fairytale_generator.dto.TaleRequestDTO;
+import com.fairytale.fairytale_generator.dto.TaleResponseDTO;
 import com.fairytale.fairytale_generator.service.FairyTaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -17,26 +18,24 @@ public class FairyTaleController {
 
     // 동화 생성
     @PostMapping("/create")
-    public FairyTale createFairyTale(Authentication authentication, @RequestParam String title,
-                                     @RequestParam String content, @RequestBody List<String> imageUrls) {
+    public TaleResponseDTO createFairyTale(Authentication authentication, @RequestBody TaleRequestDTO taleRequestDTO) {
         Long userId = (Long) authentication.getPrincipal();
-        return fairyTaleService.saveFairyTale(title, content, userId, imageUrls);
+        return fairyTaleService.saveFairyTale(taleRequestDTO.getTitle(), taleRequestDTO.getContent(), userId, taleRequestDTO.getImageUrls());
     }
 
     // 사용자 ID로 동화 목록 조회
     @GetMapping("/user")
-    public List<FairyTale> getFairyTalesByUserId(Authentication authentication) {
+    public List<TaleResponseDTO> getFairyTalesByUserId(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return fairyTaleService.getFairyTalesByUserId(userId);
     }
 
     // 동화 수정
     @PutMapping("/update/{id}")
-    public FairyTale updateFairyTale(@PathVariable Long id, Authentication authentication,
-                                     @RequestParam String title, @RequestParam String content,
-                                     @RequestBody List<String> imageUrls) {
+    public TaleResponseDTO updateFairyTale(@PathVariable Long id, Authentication authentication,
+                                           @RequestBody TaleRequestDTO taleRequestDTO) {
         Long userId = (Long) authentication.getPrincipal();
-        return fairyTaleService.updateFairyTale(id, userId, title, content, imageUrls);
+        return fairyTaleService.updateFairyTale(id, userId, taleRequestDTO.getTitle(), taleRequestDTO.getContent(), taleRequestDTO.getImageUrls());
     }
 
     // 동화 삭제

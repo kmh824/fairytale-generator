@@ -2,7 +2,6 @@ package com.fairytale.fairytale_generator.config;
 
 import com.fairytale.fairytale_generator.service.JWTUtils;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,15 +28,19 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
 
             if (jwtUtils.validateToken(token)) {
+                // Token에서 필요한 정보 추출
+                Long userId = jwtUtils.getUserIdFromToken(token);
                 String email = jwtUtils.getEmailFromToken(token);
 
                 // Security context에 사용자 정보 추가
-                Claims claims = Jwts.parserBuilder().setSigningKey(jwtUtils.getKey()).build().parseClaimsJws(token).getBody();
-                Long userId = Long.parseLong(claims.get("userId").toString());
-
                 JWTAuthentication authentication = new JWTAuthentication(userId);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                // 유효하지 않은 토큰일 경우, 응답을 반환하고 체인을 종료
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid or expired token");
+                return;
             }
         }
         chain.doFilter(request, response);
