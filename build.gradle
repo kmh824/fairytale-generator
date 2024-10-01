@@ -57,12 +57,16 @@ dependencies {
 
 	// Springdoc OpenAPI 의존성
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
-
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
 	// WebClient 사용을 위한 Spring WebFlux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	// Komoran 의존성 추가
 	implementation 'com.github.shin285:KOMORAN:3.3.4'
+
+	implementation 'com.theokanning.openai-gpt3-java:client:0.10.0'
+	implementation 'com.theokanning.openai-gpt3-java:service:0.10.0'
+
 }
 
 tasks.named('test') {

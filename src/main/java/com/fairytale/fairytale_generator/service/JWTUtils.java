@@ -12,16 +12,18 @@ import java.util.Date;
 @Component
 public class JWTUtils {
 
-    // 'key'를 반환하는 메서드 추가
+    // JWT 키를 반환하는 메서드 추가
     @Getter
     private final Key key;
     private final int jwtExpirationMs;
 
-    public JWTUtils(@Value("${jwt.secret}") String jwtSecret,
-                    @Value("${jwt.expirationMs}") int jwtExpirationMs) {
+    // @Value("${jwt.secret}") 제거
+    public JWTUtils(@Value("${jwt.secret}") String secretKey, @Value("${jwt.expirationMs}") int jwtExpirationMs) {
         this.jwtExpirationMs = jwtExpirationMs;
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes()); // 환경변수에서 가져온 키를 사용
+        System.out.println("JWT_SECRET: " + secretKey);
     }
+
 
     // JWT 토큰 생성
     public String generateToken(Long userId, String email) {
@@ -39,7 +41,6 @@ public class JWTUtils {
         return claims.get("userId", Long.class);
     }
 
-
     // JWT 토큰에서 이메일 추출
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
@@ -55,9 +56,17 @@ public class JWTUtils {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            System.out.println("Expired JWT Token: " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            System.out.println("Unsupported JWT Token: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            System.out.println("Malformed JWT Token: " + e.getMessage());
+        } catch (SignatureException e) {
+            System.out.println("Invalid JWT Signature: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Illegal argument token: " + e.getMessage());
         }
+        return false;
     }
-
 }

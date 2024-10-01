@@ -1,13 +1,16 @@
 package com.fairytale.fairytale_generator.service;
 
+import com.fairytale.fairytale_generator.dto.TaleResponseDTO;
 import com.fairytale.fairytale_generator.entity.FairyTale;
 import com.fairytale.fairytale_generator.entity.Illustration;
 import com.fairytale.fairytale_generator.exception.FairyTaleNotFoundException;
 import com.fairytale.fairytale_generator.exception.UnauthorizedAccessException;
+
 import com.fairytale.fairytale_generator.repository.FairyTaleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FairyTaleService {
@@ -19,8 +22,8 @@ public class FairyTaleService {
         this.fairyTaleRepository = fairyTaleRepository;
     }
 
-    // 동화 생성
-    public FairyTale saveFairyTale(String title, String content, Long userId, List<String> imageUrls) {
+    // 동화 저장
+    public TaleResponseDTO saveFairyTale(String title, String content, Long userId, List<String> imageUrls) {
         FairyTale fairyTale = new FairyTale();
         fairyTale.setTitle(title);
         fairyTale.setContent(content);
@@ -33,16 +36,18 @@ public class FairyTaleService {
             fairyTale.addIllustration(illustration);
         }
 
-        return fairyTaleRepository.save(fairyTale);
+        FairyTale savedFairyTale = fairyTaleRepository.save(fairyTale);
+        return convertToDTO(savedFairyTale);
     }
 
     // 사용자 ID로 동화 목록 조회
-    public List<FairyTale> getFairyTalesByUserId(Long userId) {
-        return fairyTaleRepository.findByUserId(userId);
+    public List<TaleResponseDTO> getFairyTalesByUserId(Long userId) {
+        List<FairyTale> fairyTales = fairyTaleRepository.findByUserId(userId);
+        return fairyTales.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     // 동화 수정
-    public FairyTale updateFairyTale(Long id, Long userId, String title, String content, List<String> imageUrls) {
+    public TaleResponseDTO updateFairyTale(Long id, Long userId, String title, String content, List<String> imageUrls) {
         FairyTale fairyTale = fairyTaleRepository.findById(id)
                 .orElseThrow(() -> new FairyTaleNotFoundException("해당 ID의 동화를 찾을 수 없습니다."));
 
@@ -61,7 +66,8 @@ public class FairyTaleService {
             fairyTale.addIllustration(illustration);
         }
 
-        return fairyTaleRepository.save(fairyTale);
+        FairyTale updatedFairyTale = fairyTaleRepository.save(fairyTale);
+        return convertToDTO(updatedFairyTale);
     }
 
     // 동화 삭제
@@ -80,5 +86,20 @@ public class FairyTaleService {
         if (!fairyTale.getUserId().equals(userId)) {
             throw new UnauthorizedAccessException("동화를 수정 또는 삭제할 권한이 없습니다.");
         }
+    }
+
+    // FairyTale 엔티티를 TaleResponseDTO로 변환하는 메서드
+    private TaleResponseDTO convertToDTO(FairyTale fairyTale) {
+        List<String> illustrationUrls = fairyTale.getIllustrations().stream()
+                .map(Illustration::getImageUrl)
+                .collect(Collectors.toList());
+
+        return new TaleResponseDTO(
+                fairyTale.getId(),
+                fairyTale.getUserId(),
+                fairyTale.getTitle(),
+                List.of(fairyTale.getContent()), // content를 페이지로 분리해야 하는 경우에 맞춰 수정 가능
+                illustrationUrls
+        );
     }
 }

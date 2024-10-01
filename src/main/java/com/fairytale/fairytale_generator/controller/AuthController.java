@@ -21,7 +21,8 @@ public class AuthController {
         String cleanedToken = token.replace("Bearer ", "");
         if (jwtUtils.validateToken(cleanedToken)) {
             String email = jwtUtils.getEmailFromToken(cleanedToken);
-            return ResponseEntity.ok("Token is valid. User email: " + email);
+            Long userId = jwtUtils.getUserIdFromToken(cleanedToken);
+            return ResponseEntity.ok("Token is valid. User ID: " + userId + ", Email: " + email);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
