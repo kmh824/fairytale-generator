@@ -24,7 +24,6 @@ repositories {
 	maven { url 'https://jitpack.io' }
 }
 
-
 dependencies {
 	// Spring Boot 관련 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -73,12 +72,16 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+// Spring Boot 메인 클래스 설정 (Spring Boot 3.x)
+springBoot {
+	mainClass = 'com.fairytale.fairytale_generator.FairytaleGeneratorApplication'
+}
+
 def frontendDir = "$projectDir/src/main/frontend"
 
 sourceSets {
 	main {
-		resources { srcDirs = ["$projectDir/src/main/resources"]
-		}
+		resources { srcDirs = ["$projectDir/src/main/resources"] }
 	}
 }
 
@@ -92,7 +95,8 @@ task installReact(type: Exec) {
 		commandLine "npm.cmd", "audit", "fix"
 		commandLine 'npm.cmd', 'install' }
 	else {
-		commandLine "npm", "audit", "fix" commandLine 'npm', 'install'
+		commandLine "npm", "audit", "fix"
+		commandLine 'npm', 'install'
 	}
 }
 
