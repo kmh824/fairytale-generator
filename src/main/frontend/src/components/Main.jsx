@@ -13,7 +13,7 @@ const Main = () => {
 
         if (token) {
             localStorage.setItem('authToken', token); // 토큰을 로컬 스토리지에 저장
-            window.location.replace('http://localhost:3000/home'); // localhost:3000/home으로 리디렉션
+            window.location.replace('https://fairytalegenerator.kro.kr/home'); // localhost:3000/home으로 리디렉션
             return; // 이후 코드 실행 방지
         }
 

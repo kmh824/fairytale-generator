@@ -14,12 +14,12 @@ const Home = () => {
 
             {/* Gallery Section */}
             <section style={styles.gallerySection}>
-                <h2 style={styles.galleryTitle}>갤러리</h2>
+               
                 <div style={styles.galleryImages}>
-                    <img src="" alt="스크린샷 1" style={styles.galleryImage} />
-                    <img src="" alt="스크린샷 2" style={styles.galleryImage} />
-                    <img src="" alt="스크린샷 3" style={styles.galleryImage} />
-                    <img src="" alt="스크린샷 4" style={styles.galleryImage} />
+                    <img src="" alt="스크 1" style={styles.galleryImage} />
+                    <img src="" alt="스크 2" style={styles.galleryImage} />
+                    <img src="" alt="스크 3" style={styles.galleryImage} />
+                    <img src="" alt="스크 4" style={styles.galleryImage} />
                     {/* 추가 이미지를 여기에 추가할 수 있습니다. */}
                 </div>
             </section>
