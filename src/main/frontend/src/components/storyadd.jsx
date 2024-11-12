@@ -10,14 +10,16 @@ const StoryAdd = () => {
     const [token, setToken] = useState('');
 
     useEffect(() => {
-        // 컴포넌트가 마운트될 때 로컬스토리지에서 토큰을 가져옴
-        const savedToken = localStorage.getItem('token');
+        // 서버 환경과 로컬 환경을 분기하여 토큰 설정
+        const savedToken = process.env.NODE_ENV === 'development'
+            ? localStorage.getItem('token')
+            : document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
         
         if (!savedToken) {
             setError("토큰이 없습니다. 로그인을 다시 시도해주세요.");
         } else {
             setToken(savedToken);
-            console.log('LocalStorage Token:', savedToken); // 콘솔에 토큰 출력
+            console.log('Retrieved Token:', savedToken); // 콘솔에 토큰 출력
         }
     }, []);
 

@@ -7,13 +7,18 @@ const Main = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // URL에서 토큰을 추출해 저장하고, localhost:3000/home으로 이동
+        // URL에서 토큰을 추출해 저장하고, 환경에 따라 리디렉션
         const params = new URLSearchParams(window.location.search);
         const token = params.get('token');
 
         if (token) {
             localStorage.setItem('authToken', token); // 토큰을 로컬 스토리지에 저장
-            window.location.replace('https://fairytalegenerator.kro.kr/home'); // localhost:3000/home으로 리디렉션
+            // 환경에 따라 다른 경로로 리디렉션
+            if (window.location.hostname === 'localhost') {
+                window.location.replace('http://localhost:3000/home'); // 로컬 환경 리디렉션
+            } else {
+                window.location.replace('https://fairytalegenerator.kro.kr/home'); // 서버 환경 리디렉션
+            }
             return; // 이후 코드 실행 방지
         }
 
