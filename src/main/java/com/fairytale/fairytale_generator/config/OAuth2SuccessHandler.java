@@ -49,7 +49,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String jwtToken = jwtUtils.generateToken(user.getId(), email);
 
         // JWT 토큰을 URL 파라미터로 추가하여 프론트엔드로 리다이렉트
-        response.sendRedirect("https://fairytalegenerator.kro.kr?token=" + jwtToken);
+        response.sendRedirect("http://localhost:3000?token=" + jwtToken);
     }
 
 }
