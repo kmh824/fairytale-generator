@@ -1,0 +1,121 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.fairytale'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+	// Spring Boot 관련 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//Google OAuth 2.0 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// JWT 관련 의존성
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'  // JWT JSON 파싱
+
+	// Lombok 의존성
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 개발 환경 의존성
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// MySQL 드라이버
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// 테스트 의존성
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Springdoc OpenAPI 의존성
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
+	// WebClient 사용을 위한 Spring WebFlux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// Komoran 의존성 추가
+	implementation 'com.github.shin285:KOMORAN:3.3.4'
+
+	implementation 'com.theokanning.openai-gpt3-java:client:0.10.0'
+	implementation 'com.theokanning.openai-gpt3-java:service:0.10.0'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// Spring Boot 메인 클래스 설정 (Spring Boot 3.x)
+springBoot {
+	mainClass = 'com.fairytale.fairytale_generator.FairytaleGeneratorApplication'
+}
+
+def frontendDir = "$projectDir/src/main/frontend"
+
+sourceSets {
+	main {
+		resources { srcDirs = ["$projectDir/src/main/resources"] }
+	}
+}
+
+processResources { dependsOn "copyReactBuildFiles" }
+
+task installReact(type: Exec) {
+	workingDir "$frontendDir"
+	inputs.dir "$frontendDir"
+	group = BasePlugin.BUILD_GROUP
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine "npm.cmd", "audit", "fix"
+		commandLine 'npm.cmd', 'install' }
+	else {
+		commandLine "npm", "audit", "fix"
+		commandLine 'npm', 'install'
+	}
+}
+
+task buildReact(type: Exec) {
+	dependsOn "installReact"
+	workingDir "$frontendDir"
+	inputs.dir "$frontendDir"
+	group = BasePlugin.BUILD_GROUP
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine "npm.cmd", "run-script", "build"
+	} else {
+		commandLine "npm", "run-script", "build"
+	}
+}
+
+task copyReactBuildFiles(type: Copy) {
+	dependsOn "buildReact"
+	from "$frontendDir/build"
+	into "$projectDir/src/main/resources/static"
+}
