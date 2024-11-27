@@ -81,8 +81,8 @@ const StoryAdd = () => {
                 '/api/fairy-tales/create',
                 {
                     title: story.title || "제목 없음",
-                    content: story.content || "내용 없음",
-                    imageUrls: story.imageUrls || [],
+                    content: story.talePages ? story.talePages.join('\n') : "내용 없음",
+                    imageUrls: story.illustrationUrls || [],
                 },
                 {
                     headers: {
